@@ -633,11 +633,48 @@
             }
         );
 
-        $("#name, #email").keyup(function (e) {
-            if (e.keyCode == 13) {
-                $(this).blur();
-            }
+        var recognition = new webkitSpeechRecognition();
+        recognition.interimResults = true;
+
+        $("#mic").bind("touchstart click", function() {
+            final_transcript = '';
+            recognition.start();
         });
+
+        // $("#mic").click(function() {
+        //    // event.preventDefault();
+        //     $("#foo").text("click!");
+        //     final_transcript = '';
+        //     recognition.start();
+        // });
+
+        recognition.onstart = function() {
+            console.log("Starting");
+        };
+        recognition.onresult = function(event) {
+            console.log("onresult");
+            var interim_transcript = '';
+
+            for (var i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    final_transcript += event.results[i][0].transcript;
+                } else {
+                    interim_transcript += event.results[i][0].transcript;
+                }
+            }
+            $('#search').focus();
+            $('#search').val(final_transcript);
+            $('#search').trigger(jQuery.Event('keydown', { which: 13 }));
+            console.log(final_transcript);
+        };
+
+        recognition.onerror = function(event) {
+            console.log(event);
+            console.log("onerror");
+        };
+        recognition.onend = function() {
+            console.log("onend");
+        };
         
     }); // end of document ready
 })(jQuery); // end of jQuery name space
